@@ -9,7 +9,8 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/qn34uc59t/privacy_screen/releases"><img src="https://img.shields.io/badge/Release-v1.0-blue?style=flat-square" alt="Version 1.0" /></a>
+  <a href="https://github.com/qn34uc59t/privacy_screen/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/qn34uc59t/privacy_screen/ci.yml?branch=main&style=flat-square&label=CI" alt="CI Status" /></a>
+  <a href="https://github.com/qn34uc59t/privacy_screen/releases"><img src="https://img.shields.io/github/v/release/qn34uc59t/privacy_screen?style=flat-square" alt="Latest Release" /></a>
   <img src="https://img.shields.io/badge/macOS-14.0%2B%20Sonoma-black?style=flat-square&logo=apple" alt="macOS 14.0+" />
   <img src="https://img.shields.io/badge/Swift-5.10-F05138?style=flat-square&logo=swift&logoColor=white" alt="Swift 5.10" />
   <a href="LICENSE"><img src="https://img.shields.io/badge/License-PolyForm%20Noncommercial%201.0.0-green?style=flat-square" alt="License: PolyForm Noncommercial" /></a>
