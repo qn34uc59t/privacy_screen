@@ -27,20 +27,21 @@ By tapping into the high-frequency IMU motion sensors in your Apple AirPods or c
 
 ## Demo
 
-<!-- DEMO SHOWCASE -->
-> **Demo Preview**
-> Replace `assets/demo.gif` or embed your demo video link below once recorded.
+<p align="center">
+  <img src="assets/demo.gif" alt="PrivacyScreen in Action" width="680" />
+</p>
+<p align="center">
+  <em>Live head-tracking glance detection shielding the display. (<a href="assets/1.mp4">HD Video Walkthrough</a>)</em>
+</p>
 
-```
-+-----------------------------------------------------------------------+
-|                                                                       |
-|   [ Screen Active ]  ----( Head turns > 25° )---->  [ Screen Blurred ]|
-|      Normal Work                                        Instant Shield |
-|                                                                       |
-+-----------------------------------------------------------------------+
-```
+<br />
 
-*(Drop your screen recording as `assets/demo.gif` to display it here)*
+<p align="center">
+  <img src="assets/2.png" alt="PrivacyScreen Menu Bar Interface" width="360" />
+</p>
+<p align="center">
+  <em>Compact macOS Menu Bar popover with Instant Lock, status indicator, and calibration controls.</em>
+</p>
 
 ---
 
