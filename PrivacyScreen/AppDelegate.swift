@@ -48,10 +48,9 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
 
     private func setupPopover() {
         let popover = NSPopover()
-        popover.contentSize = NSSize(width: 320, height: 240)
         popover.behavior = .transient                 // closes when user clicks outside
         popover.animates = true
-        popover.contentViewController = NSHostingController(
+        let hc = NSHostingController(
             rootView: MenuBarPopoverView(
                 motionState: motionState,
                 onCalibrate: { [weak self] in
@@ -59,6 +58,8 @@ class AppDelegate: NSObject, NSApplicationDelegate, NSWindowDelegate {
                 }
             )
         )
+        hc.sizingOptions = .preferredContentSize
+        popover.contentViewController = hc
         self.popover = popover
     }
 

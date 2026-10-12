@@ -1,10 +1,13 @@
 import Foundation
+import os
 import CoreMotion
 import ServiceManagement
 
 @Observable
 @MainActor
 final class MotionState: NSObject, CMHeadphoneMotionManagerDelegate {
+
+    private let logger = Logger(subsystem: "com.nvzhn.PrivacyScreen", category: "MotionState")
 
     // MARK: - Observable properties (drive all UI)
 
@@ -47,7 +50,7 @@ final class MotionState: NSObject, CMHeadphoneMotionManagerDelegate {
                         try SMAppService.mainApp.unregister()
                     }
                 } catch {
-                    print("Failed to update Launch at Login: \(error)")
+                    logger.error("Failed to update Launch at Login: \(error.localizedDescription)")
                 }
             }
         }
@@ -106,7 +109,7 @@ final class MotionState: NSObject, CMHeadphoneMotionManagerDelegate {
         checkAvailability()
 
         guard isAvailable else {
-            print("[PrivacyScreen] CMHeadphoneMotionManager unavailable — AirPods not connected or head tracking disabled.")
+            logger.warning("CMHeadphoneMotionManager unavailable — AirPods not connected or head tracking disabled.")
             isActive = false
             startReconnectPolling()
             return
@@ -125,7 +128,7 @@ final class MotionState: NSObject, CMHeadphoneMotionManagerDelegate {
                     self.isTriggered = false
                     self.wasTriggered = false
                     self.lastError = error.localizedDescription
-                    print("[PrivacyScreen] Motion error: \(error.localizedDescription)")
+                    logger.error("Motion error: \(error.localizedDescription)")
                     self.startReconnectPolling()
                 }
                 return
@@ -164,17 +167,16 @@ final class MotionState: NSObject, CMHeadphoneMotionManagerDelegate {
                 self.deltaPitch = normalizeAngle(pitch - self.baselinePitch)
                 self.updateTriggerState()
 
-                // Console readout for Block 2 testing — removed in Block 7 polish
-                print(String(format: "[Motion] Δyaw: %+.3f rad  Δpitch: %+.3f rad  triggered: %@",
-                             self.deltaYaw, self.deltaPitch,
-                             self.isTriggered ? "YES 🔴" : "NO  🟢"))
+                #if DEBUG
+                self.logger.debug("Δyaw: \(self.deltaYaw, format: .fixed(precision: 3)), Δpitch: \(self.deltaPitch, format: .fixed(precision: 3)), triggered: \(self.isTriggered)")
+                #endif
             }
         }
 
         isActive = true
         lastError = nil
         trackingStartedAt = Date()
-        print("[PrivacyScreen] Tracking started. Move your head to verify.")
+        logger.info("Tracking started.")
     }
 
     func stopTracking() {
@@ -185,7 +187,7 @@ final class MotionState: NSObject, CMHeadphoneMotionManagerDelegate {
         wasTriggered     = false
         trackingStartedAt = nil
         stopReconnectPolling()
-        print("[PrivacyScreen] Tracking stopped.")
+        logger.info("Tracking stopped.")
     }
 
     /// Snapshot current raw values as the zero baseline.
@@ -196,8 +198,7 @@ final class MotionState: NSObject, CMHeadphoneMotionManagerDelegate {
         deltaPitch    = 0
         isTriggered   = false
         wasTriggered  = false
-        print(String(format: "[PrivacyScreen] Calibrated → baseline yaw: %.3f, pitch: %.3f",
-                     baselineYaw, baselinePitch))
+        logger.info("Calibrated → baseline yaw: \(self.baselineYaw, format: .fixed(precision: 3)), pitch: \(self.baselinePitch, format: .fixed(precision: 3))")
     }
 
     // MARK: - Hysteresis logic
@@ -245,7 +246,7 @@ final class MotionState: NSObject, CMHeadphoneMotionManagerDelegate {
             Task { @MainActor [weak self] in
                 guard let self else { return }
                 guard self.intentToTrack, !self.isActive, self.manager.isDeviceMotionAvailable else { return }
-                print("[PrivacyScreen] AirPods detected — restarting tracking.")
+                self.logger.info("AirPods detected — restarting tracking.")
                 self.isAvailable = true
                 self.startTracking()
             }
@@ -262,7 +263,7 @@ final class MotionState: NSObject, CMHeadphoneMotionManagerDelegate {
     nonisolated func headphoneMotionManagerDidConnect(_ manager: CMHeadphoneMotionManager) {
         Task { @MainActor [weak self] in
             guard let self else { return }
-            print("[PrivacyScreen] AirPods delegate: Connected.")
+            self.logger.info("AirPods connected.")
             self.isAvailable = true
             // If we have an active intent to track but were paused due to disconnect, restart
             if self.intentToTrack && self.isActive == false {
@@ -274,7 +275,7 @@ final class MotionState: NSObject, CMHeadphoneMotionManagerDelegate {
     nonisolated func headphoneMotionManagerDidDisconnect(_ manager: CMHeadphoneMotionManager) {
         Task { @MainActor [weak self] in
             guard let self else { return }
-            print("[PrivacyScreen] AirPods delegate: Disconnected.")
+            self.logger.info("AirPods disconnected.")
             self.isAvailable = false
             self.isActive = false
             self.isTriggered = false

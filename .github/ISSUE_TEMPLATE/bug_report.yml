@@ -1,0 +1,62 @@
+name: Bug Report
+description: Report an issue or unexpected behavior in PrivacyScreen
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for reporting an issue! Please provide as much detail as possible.
+  - type: textarea
+    id: description
+    attributes:
+      label: Description
+      description: A clear and concise description of the bug.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: Step-by-step instructions to reproduce the issue.
+      placeholder: |
+        1. Open PrivacyScreen
+        2. Put on AirPods...
+        3. Turn head...
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected Behavior
+      description: What you expected to happen.
+    validations:
+      required: true
+  - type: dropdown
+    id: macos-version
+    attributes:
+      label: macOS Version
+      options:
+        - macOS 15.x (Sequoia)
+        - macOS 14.x (Sonoma)
+        - Other (specify below)
+    validations:
+      required: true
+  - type: dropdown
+    id: headphone-model
+    attributes:
+      label: Headphone Model
+      options:
+        - AirPods Pro (2nd Generation)
+        - AirPods Pro (1st Generation)
+        - AirPods Max
+        - AirPods (3rd Generation)
+        - Beats Fit Pro
+        - Other
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Additional Context or Console Logs
+      description: Attach relevant log output or screenshots if available.

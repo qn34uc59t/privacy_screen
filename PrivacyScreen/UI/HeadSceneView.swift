@@ -5,11 +5,11 @@ struct HeadSceneView: NSViewRepresentable {
     @Bindable var motionState: MotionState
     
     func makeNSView(context: Context) -> SCNView {
-        let scnView = SCNView()
+        let scnView = SCNView(frame: NSRect(x: 0, y: 0, width: 300, height: 300))
         scnView.backgroundColor = .clear
         scnView.antialiasingMode = .multisampling4X
         scnView.allowsCameraControl = false
-        scnView.isJitteringEnabled = true
+        scnView.isJitteringEnabled = false
         
         let builder = HeadSceneBuilder()
         scnView.scene = builder.scene

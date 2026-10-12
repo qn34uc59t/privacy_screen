@@ -6,175 +6,134 @@ struct MenuBarPopoverView: View {
 
     var body: some View {
         ZStack {
-            // macOS Vibrant background
             VisualEffectView(material: .popover, blendingMode: .behindWindow)
-                .ignoresSafeArea()
-            
-            // Subtle dark overlay to match the premium dark design
-            Color(nsColor: NSColor(white: 0.05, alpha: 0.4))
                 .ignoresSafeArea()
 
             VStack(spacing: 0) {
-                // Top Row
-                HStack {
-                    Image(systemName: "eye")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.8))
-                    
+                // Privacy Screen row — dot replaces icon, conveys state via color
+                HStack(spacing: 10) {
+                    let (color, animated) = dotState
+                    PulsingDotView(color: color, animate: animated)
+                        .frame(width: 16, alignment: .center)
+
                     Text("Privacy Screen")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(.white)
-                    
+                        .font(.system(size: 13))
+
                     Spacer()
-                    
+
                     Toggle("", isOn: $motionState.isActive)
-                        .toggleStyle(SwitchToggleStyle(tint: Color(red: 0, green: 0.83, blue: 0.78)))
+                        .toggleStyle(.switch)
+                        .tint(Color(red: 0, green: 0.83, blue: 0.78))
                         .labelsHidden()
+                        .controlSize(.small)
                         .onChange(of: motionState.isActive) { _, newValue in
-                            if newValue {
-                                motionState.startTracking()
-                            } else {
-                                motionState.stopTracking()
-                            }
+                            if newValue { motionState.startTracking() } else { motionState.stopTracking() }
                         }
                 }
                 .padding(.horizontal, 16)
-                .padding(.top, 14)
-                .padding(.bottom, 8)
-                
-                // Instant Lock Row
-                HStack {
-                    Image(systemName: "lock.fill")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.8))
-                    
-                    Text("Instant Lock")
-                        .font(.system(size: 14, weight: .medium))
-                        .foregroundStyle(.white)
-                    
-                    Spacer()
-                    
-                    Toggle("", isOn: $motionState.isParanoiaModeEnabled)
-                        .toggleStyle(SwitchToggleStyle(tint: Color(red: 0, green: 0.83, blue: 0.78)))
-                        .labelsHidden()
+                .padding(.vertical, 8)
+
+                Divider().padding(.leading, 40)
+
+                // Instant Lock row
+                MenuRow(icon: "lock", label: "Instant Lock", binding: $motionState.isParanoiaModeEnabled)
+
+                Divider()
+
+                // Calibration button
+                Button(action: onCalibrate) {
+                    Label("Open Calibration Panel", systemImage: "slider.horizontal.3")
+                        .frame(maxWidth: .infinity, alignment: .leading)
                 }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 14)
+                .buttonStyle(MenuActionButtonStyle())
+                .padding(.horizontal, 8)
+                .padding(.vertical, 4)
 
-                // Status Row
-                HStack(spacing: 8) {
-                    let (statusText, dotColor, isAnimated) = statusInfo
-                    
-                    PulsingDotView(color: dotColor, animate: isAnimated)
-                    
-                    Text(statusText)
-                        .font(.system(size: 13, weight: .medium))
-                        .foregroundStyle(.white.opacity(0.9))
-                    
-                    Spacer()
-                    
-                    if let start = motionState.trackingStartedAt, motionState.isActive {
-                        Text("Since \(start.formatted(.relative(presentation: .numeric)))")
-                            .font(.system(size: 11))
-                            .foregroundStyle(.white.opacity(0.4))
-                    }
-                }
-                .padding(.horizontal, 16)
-                .padding(.bottom, 12)
-
-                Divider().overlay(Color.white.opacity(0.1))
-
-                // Data Cards
-                HStack(spacing: 12) {
-                    StatCard(label: "Yaw", value: motionState.deltaYaw)
-                    StatCard(label: "Pitch", value: motionState.deltaPitch)
-                }
-                .padding(16)
-
-                Divider().overlay(Color.white.opacity(0.1))
-
-                // Calibrate CTA
-                Button(action: {
-                    onCalibrate()
-                }) {
-                    Text("OPEN CALIBRATION PANEL")
-                        .font(.system(size: 13, weight: .bold, design: .rounded))
-                        .foregroundStyle(.white)
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 14)
-                }
-                .buttonStyle(BlackButtonStyle())
-                .padding(.horizontal, 16)
-                .padding(.vertical, 16)
+                Divider()
 
                 // Footer
-                HStack(spacing: 12) {
+                HStack {
                     Toggle("Launch at Login", isOn: Bindable(motionState).launchAtLogin)
-                        .toggleStyle(.switch)
-                        .tint(Color(red: 0, green: 0.83, blue: 0.78))
-                        .foregroundStyle(.white.opacity(0.8))
-                        .font(.system(size: 12))
-                    
+                        .toggleStyle(.checkbox)
+
                     Spacer()
-                    
-                    Text("|")
-                        .foregroundStyle(.white.opacity(0.2))
-                    
-                    Button("Quit") {
-                        NSApp.terminate(nil)
-                    }
-                    .buttonStyle(.plain)
+
+                    Button("Quit") { NSApp.terminate(nil) }
+                        .buttonStyle(.plain)
+                        .foregroundStyle(.secondary)
                 }
+                .font(.system(size: 12))
                 .padding(.horizontal, 16)
-                .padding(.vertical, 16)
+                .padding(.vertical, 8)
             }
         }
-        .frame(width: 320)
+        .frame(width: 280)
     }
-    
-    private var statusInfo: (String, Color, Bool) {
+
+    private var dotState: (Color, Bool) {
         if !motionState.isAvailable && motionState.lastError != nil {
-            return ("No AirPods", Color.red, false)
+            return (.red, false)
         } else if !motionState.isActive {
-            return ("Paused", Color.gray, false)
+            return (.secondary, false)
         } else if motionState.isTriggered {
-            return ("Triggered", Color.red, true)
+            return (.red, true)
         } else {
-            return ("Monitoring", Color(red: 0, green: 0.83, blue: 0.78), true)
+            return (Color(red: 0, green: 0.83, blue: 0.78), true)
         }
     }
 }
 
-// MARK: - Subcomponents
+// MARK: - Menu Row
 
-struct StatCard: View {
+private struct MenuRow: View {
+    let icon: String
     let label: String
-    let value: Double
-    
+    let binding: Binding<Bool>
+
     var body: some View {
-        VStack(spacing: 4) {
+        HStack(spacing: 10) {
+            Image(systemName: icon)
+                .frame(width: 16, alignment: .center)
+                .foregroundStyle(.secondary)
             Text(label)
-                .font(.system(size: 12, weight: .medium))
-                .foregroundStyle(.white.opacity(0.6))
-            
-            let degrees = value * 180 / .pi
-            Text(String(format: "%.1f°", degrees))
-                .font(.system(size: 24, weight: .medium, design: .monospaced))
-                .foregroundStyle(Color(red: 0, green: 0.83, blue: 0.78))
+                .font(.system(size: 13))
+            Spacer()
+            Toggle("", isOn: binding)
+                .toggleStyle(.switch)
+                .tint(Color(red: 0, green: 0.83, blue: 0.78))
+                .labelsHidden()
+                .controlSize(.small)
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 16)
-        .background(
-            RoundedRectangle(cornerRadius: 12)
-                .fill(Color(white: 0.08))
-        )
+        .padding(.horizontal, 16)
+        .padding(.vertical, 6)
     }
 }
+
+// MARK: - Menu Action Button
+
+private struct MenuActionButtonStyle: ButtonStyle {
+    @State private var isHovered = false
+
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .font(.system(size: 13))
+            .padding(.horizontal, 10)
+            .padding(.vertical, 7)
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .background(
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(isHovered ? Color.accentColor.opacity(0.15) : Color.clear)
+            )
+            .onHover { isHovered = $0 }
+    }
+}
+
+// MARK: - Visual Effect
 
 struct VisualEffectView: NSViewRepresentable {
     let material: NSVisualEffectView.Material
     let blendingMode: NSVisualEffectView.BlendingMode
-    
+
     func makeNSView(context: Context) -> NSVisualEffectView {
         let view = NSVisualEffectView()
         view.material = material
@@ -182,7 +141,7 @@ struct VisualEffectView: NSViewRepresentable {
         view.state = .active
         return view
     }
-    
+
     func updateNSView(_ nsView: NSVisualEffectView, context: Context) {
         nsView.material = material
         nsView.blendingMode = blendingMode
