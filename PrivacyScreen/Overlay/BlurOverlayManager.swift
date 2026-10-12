@@ -2,6 +2,7 @@ import AppKit
 import Combine
 import SwiftUI
 
+@MainActor
 final class BlurOverlayManager {
     private let motionState: MotionState
     private var windows: [NSScreen: BlurOverlayWindow] = [:]
