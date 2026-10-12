@@ -87,17 +87,25 @@ PrivacyScreen is built with privacy-first engineering:
 
 ## Installation
 
-### Method 1: Download Pre-built DMG (Recommended)
+### Method 1: Homebrew (Recommended)
+
+```bash
+brew install --cask qn34uc59t/tap/privacyscreen
+```
+
+Quarantine flags are automatically cleared during install. Updates via `brew upgrade privacyscreen`.
+
+### Method 2: Download Pre-built DMG
 
 1. Download `PrivacyScreen-v1.0.dmg` from [GitHub Releases](https://github.com/qn34uc59t/privacy_screen/releases).
 2. Open the disk image and drag **PrivacyScreen** to your `/Applications` folder.
-3. Because PrivacyScreen is an open-source build distributed outside the Mac App Store, clear the macOS Gatekeeper quarantine flag in Terminal before first launch:
+3. Clear the macOS Gatekeeper quarantine flag before first launch:
    ```bash
    xattr -cr /Applications/PrivacyScreen.app
    ```
 4. Launch **PrivacyScreen** from Spotlight or `/Applications`.
 
-### Method 2: Build from Source
+### Method 3: Build from Source
 
 ```bash
 # 1. Clone repository
