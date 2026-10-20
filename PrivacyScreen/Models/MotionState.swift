@@ -33,6 +33,7 @@ final class MotionState: NSObject, CMHeadphoneMotionManagerDelegate {
     // Auto-launch
     var launchAtLogin: Bool {
         get {
+            access(keyPath: \.launchAtLogin)
             if #available(macOS 13.0, *) {
                 return SMAppService.mainApp.status == .enabled
             } else {
@@ -40,21 +41,33 @@ final class MotionState: NSObject, CMHeadphoneMotionManagerDelegate {
             }
         }
         set {
-            if #available(macOS 13.0, *) {
-                do {
-                    if newValue {
-                        if SMAppService.mainApp.status != .enabled {
+            withMutation(keyPath: \.launchAtLogin) {
+                if #available(macOS 13.0, *) {
+                    do {
+                        if newValue {
+                            if SMAppService.mainApp.status == .enabled {
+                                try? SMAppService.mainApp.unregister()
+                            }
                             try SMAppService.mainApp.register()
+                        } else {
+                            do {
+                                try SMAppService.mainApp.unregister()
+                            } catch let error as NSError where error.domain == "SMAppServiceErrorDomain" && error.code == 113 {
+                                // Service is already unregistered
+                            }
                         }
-                    } else {
-                        try SMAppService.mainApp.unregister()
+                    } catch {
+                        logger.error("Failed to update Launch at Login: \(error.localizedDescription)")
                     }
-                } catch {
-                    logger.error("Failed to update Launch at Login: \(error.localizedDescription)")
                 }
             }
         }
     }
+
+    func refreshLaunchAtLoginStatus() {
+        withMutation(keyPath: \.launchAtLogin) {}
+    }
+
     var lastError: String? = nil
     var trackingStartedAt: Date? = nil   // for "Since Xm ago" display
 

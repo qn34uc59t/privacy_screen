@@ -53,7 +53,7 @@ struct MenuBarPopoverView: View {
 
                 // Footer
                 HStack {
-                    Toggle("Launch at Login", isOn: Bindable(motionState).launchAtLogin)
+                    Toggle("Launch at Login", isOn: $motionState.launchAtLogin)
                         .toggleStyle(.checkbox)
 
                     Spacer()
